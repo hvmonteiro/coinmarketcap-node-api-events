@@ -1,5 +1,5 @@
 {
-  "name": "coinmarketcap-node-api-events",
+  "name": "node-coinmarketcap-rest-api",
   "version": "0.1.0",
   "description": "A NodeJS module to connect to CoinMarketCap REST API.",
   "main": "index.js",
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/hvmonteiro/coinmarketcap-node-api-events.git"
+    "url": "git+https://github.com/hvmonteiro/node-coinmarketcap-rest-api.git"
   },
   "keywords": [
     "coinmarketcap",
@@ -22,9 +22,9 @@
   "author": "Hugo V. Monteiro",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/hvmonteiro/coinmarketcap-node-api-events/issues"
+    "url": "https://github.com/hvmonteiro/node-coinmarketcap-rest-api/issues"
   },
-  "homepage": "https://github.com/hvmonteiro/coinmarketcap-node-api-events#readme",
+  "homepage": "https://github.com/hvmonteiro/node-coinmarketcap-rest-api#readme",
   "dependencies": {
     "request": "^2.81.0"
   },

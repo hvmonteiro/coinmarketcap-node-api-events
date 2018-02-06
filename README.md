@@ -9,12 +9,12 @@ Originally based on the simple yet very well written [node-coinmarketcap](https:
 ## Installation
 
 ```console
-$ npm install coinmarketcap-node-api-events
+$ npm install node-coinmarketcap-rest-api
 ```
 
 ## Quick Usage Example:
 ```js
-var CoinMarketCap = require("coinmarketcap-node-api-events");
+var CoinMarketCap = require("node-coinmarketcap-rest-api");
 var coinmarketcap = new CoinMarketCap();
 // If you want to check a single coin, use get() (You need to supply the coinmarketcap id of the cryptocurrency, not the symbol)
 // If you want to use symbols instead of id, use multi.
@@ -25,7 +25,7 @@ coinmarketcap.get("bitcoin", coin => {
 
 ## More Complete Usage Example:
 ```js
-var CoinMarketCap = require("coinmarketcap-node-api-events");
+var CoinMarketCap = require("node-coinmarketcap-rest-api");
 var coinmarketcap = new CoinMarketCap();
 // If you want to check a single coin, use get() (You need to supply the coinmarketcap id of the cryptocurrency, not the symbol)
 // If you want to use symbols instead of id, use multi.
@@ -49,7 +49,7 @@ coinmarketcap.getGlobalData( (globalData) => {
 ## Usage Example with Events:
 
 ```js
-var CoinMarketCap = require("coinmarketcap-node-api-events");
+var CoinMarketCap = require("node-coinmarketcap-rest-api");
 
 var options = {
 	events: true, // Enable event system
@@ -84,4 +84,4 @@ coinmarketcap.onMulti((coins, event) => {
 });
 
 ```
-For a full list of examples with events, visit: https://github.com/hvmonteiro/coinmarketcap-node-api-events/blob/master/example.js
+For a full list of examples with events, visit: https://github.com/hvmonteiro/node-coinmarketcap-rest-api/blob/master/example.js
