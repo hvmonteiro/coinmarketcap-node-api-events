@@ -1,7 +1,7 @@
 {
   "name": "node-coinmarketcap-rest-api",
   "version": "0.1.0",
-  "description": "A NodeJS module to connect to CoinMarketCap REST API.",
+  "description": "A NodeJS module to request data from CoinMarketCap REST API.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
