@@ -1,13 +1,18 @@
+'use strict'; // jshint ignore:line
+
+// jshint esversion: 6
+/* globals require: true, __dirname: true, setInterval: true, console: true, module: true */
+
 var request = require('request');
 
 class CoinMarketCap {
 
-    constructor(options={}){
-        this.API_URL = options.API_URL || "https://api.coinmarketcap.com/v1";
-        this.convert = options.convert || "USD";
-        this.convert = this.convert.toLowerCase();
+    constructor(options = {} )  {
+        this.API_URL = options.API_URL || 'https://api.coinmarketcap.com/v1';
+        this.currency = options.currency || 'USD';
+        this.currency = this.currency.toLowerCase();
         this.events = options.events || false;
-        if(this.events){
+        if (this.events) {
             this.refresh = options.refresh*1000 || 60*1000;
             this.events = [];
             this._emitter();
@@ -15,13 +20,13 @@ class CoinMarketCap {
         }
     }
 
-    _getJSON(url, callback){
+    _getJSON(url, callback) {
         request(this.API_URL+url, (error, response, body) => {
-            if(error){
+            if (error) {
                 callback(false);
                 return this;
             }
-            if(response && response.statusCode == 200){
+            if (response && response.statusCode == 200) {
                 var data;
                 try {
                     data = JSON.parse(body);
@@ -34,220 +39,223 @@ class CoinMarketCap {
                 callback(false);
                 return this;
             }
-        });
+        } ) ;
     }
 
-    _find(coins, coin){
-        return coins.find(o => o.symbol === coin.toUpperCase()) ||
-            coins.find(o => o.id === coin.toLowerCase());
+    _find(symbols, symbol) {
+        return symbols.find(o => o.symbol === symbol.toUpperCase()) ||
+            symbols.find(o => o.id === symbol.toLowerCase());
     }
 
-    _emitter(){
-        this._getJSON(`/ticker/?convert=${this.convert}&limit=0`, (coins) => {
-            if(!coins){ return false; }
+    _emitter() {
+        this._getJSON(`/ticker/?convert=${this.currency}&limit=0`, (symbols) => {
+            if (!symbols) { return false; }
 
-            this.events.filter(e => e.type == "multi").forEach(event => {
-                if(coins){
+            this.events.filter(e => e.type == 'update').forEach(event => {
+                if (symbols) {
 
-                    var response = {};
-                    response.data = coins;
-                    response.get = function(coin){ return coins.find(o => o.symbol === coin.toUpperCase()) || coins.find(o => o.id === coin.toLowerCase()); };
-                    response.getTop = function(top){return coins.slice(0, top);};
-                    response.getAll = function(){ return coins; };
-                    event.callback(response, event);
-                }
-            });
+                    var res = {};
+                    res.data = symbols;
 
-            this.events.filter(e => e.type == "update").forEach(event => {
-                var res = this._find(coins, event.coin);
-                if(res){
+                    res.getTicker = function(symbol) { return symbols.find(o => o.symbol === symbol.toUpperCase()) || symbols.find(o => o.id === symbol.toLowerCase()); };
+                    res.getTopSymbols = function(limit) {return symbols.slice(0, limit);};
+                    res.getAllTickers = function() { return symbols; };
+
                     event.callback(res, event);
                 }
-            });
+            } ) ;
 
-            this.events.filter(e => e.type == "greater").forEach(event => {
-                var res = this._find(coins, event.coin);
-                if(res){
-                    if(res["price_"+this.convert] >= event.price){
+            this.events.filter(e => e.type == 'tickerUpdate').forEach(event => {
+                var res = this._find(symbols, event.symbol);
+                if (res) {
+                    event.callback(res, event);
+                }
+            } ) ;
+
+            this.events.filter(e => e.type == 'priceAbove').forEach(event => {
+                var res = this._find(symbols, event.symbol);
+                if (res) {
+                    if (res['price_'+this.currency] >= event.price) {
                         event.callback(res, event);
                     }
                 }
-            });
+            } ) ;
 
-            this.events.filter(e => e.type == "lesser").forEach(event => {
-                var res = this._find(coins, event.coin);
-                if(res){
-                    if(res["price_"+this.convert] <= event.price){
+            this.events.filter(e => e.type == 'priceBelow').forEach(event => {
+                var res = this._find(symbols, event.symbol);
+                if (res) {
+                    if (res['price_'+this.currency] <= event.price) {
                         event.callback(res, event);
                     }
                 }
-            });
+            } ) ;
 
-            this.events.filter(e => e.type == "percent1h").forEach(event => {
-                var res = this._find(coins, event.coin);
-                if(res){
-                    if(event.percent < 0 && res.percent_change_1h <= event.percent ){
+            this.events.filter(e => e.type == 'pricePercentChange1h').forEach(event => {
+                var res = this._find(symbols, event.symbol);
+                if (res) {
+                    if (event.percent < 0 && res.percent_change_1h <= event.percent ) {
                         event.callback(res, event);
-                    } else if(event.percent > 0 && res.percent_change_1h >= event.percent){
+                    } else if (event.percent > 0 && res.percent_change_1h >= event.percent) {
                         event.callback(res, event);
-                    } else if(event.percent == 0 && res.percent_change_1h == 0){
+                    } else if (event.percent == 0 && res.percent_change_1h == 0) {
                         event.callback(res, event);
                     }
                 }
-            });
+            } ) ;
 
-            this.events.filter(e => e.type == "percent24h").forEach(event => {
-                var res = this._find(coins, event.coin);
-                if(res){
-                    if(event.percent < 0 && res.percent_change_24h <= event.percent ){
+            this.events.filter(e => e.type == 'pricePercentChange24h').forEach(event => {
+                var res = this._find(symbols, event.symbol);
+                if (res) {
+                    if (event.percent < 0 && res.percent_change_24h <= event.percent ) {
                         event.callback(res, event);
-                    } else if(event.percent > 0 && res.percent_change_24h >= event.percent){
+                    } else if (event.percent > 0 && res.percent_change_24h >= event.percent) {
                         event.callback(res, event);
-                    } else if(event.percent == 0 && res.percent_change_24h == 0){
+                    } else if (event.percent == 0 && res.percent_change_24h == 0) {
                         event.callback(res, event);
                     }
                 }
-            });
+            } ) ;
 
-            this.events.filter(e => e.type == "percent7d").forEach(event => {
-                var res = this._find(coins, event.coin);
-                if(res){
-                    if(event.percent < 0 && res.percent_change_7d <= event.percent ){
+            this.events.filter(e => e.type == 'pricePercentChange7d').forEach(event => {
+                var res = this._find(symbols, event.symbol);
+                if (res) {
+                    if (event.percent < 0 && res.percent_change_7d <= event.percent ) {
                         event.callback(res, event);
-                    } else if(event.percent > 0 && res.percent_change_7d >= event.percent){
+                    } else if (event.percent > 0 && res.percent_change_7d >= event.percent) {
                         event.callback(res, event);
-                    } else if(event.percent == 0 && res.percent_change_7d == 0){
+                    } else if (event.percent == 0 && res.percent_change_7d == 0) {
                         event.callback(res, event);
                     }
                 }
-            });
-        });
+            } ) ;
+        } ) ;
     }
 
-    multi(callback){
-        this._getJSON(`/ticker/?convert=${this.convert}&limit=0`, (coins) => {
-            if(coins && callback){
+    getAllTickers(callback) {
+        this._getJSON(`/ticker/?convert=${this.currency}&limit=0`, (symbols) => {
+            if (symbols && callback) {
                 var response = {};
-                response.data = coins;
-                response.get = function(coin){ return this.data.find(o => o.symbol === coin.toUpperCase()) || this.data.find(o => o.id === coin.toLowerCase()); };
-                response.getTop = function(top){return this.data.slice(0, top);};
-                response.getAll = function(){ return this.data; };
+                response.data = symbols;
+                response.get = function(symbol) { return this.data.find(o => o.symbol === symbol.toUpperCase()) || this.data.find(o => o.id === symbol.toLowerCase()); };
+                response.getTop = function(top) {return this.data.slice(0, top);};
+                response.getAll = function() { return this.data; };
                 callback(response);
             }
-        });
+        } ) ;
         return this;
     }
 
-    getGlobalData(callback){
-        if(callback){
-            this._getJSON(`/global/?convert=${this.convert}`, (res) => {
-                if(res){callback(res);}
-            });
+    getGlobalData(callback) {
+        if (callback) {
+            this._getJSON(`/global/?convert=${this.currency}`, (res) => {
+                if (res) {callback(res);}
+            } ) ;
             return this;
         } else {
             return false;
         }
     }
 
-    get(coin, callback){
-        if(callback){
-            this._getJSON(`/ticker/${coin}/?convert=${this.convert}`, (res) => {
-                if(res){callback(res[0]);}
-            });
+    getTicker(symbol, callback) {
+        if (callback) {
+            this._getJSON(`/ticker/${symbol}/?convert=${this.currency}`, (res) => {
+                if (res) {callback(res[0]);}
+            } ) ;
             return this;
         } else {
             return false;
         }
     }
 
-    getAll(callback){
-        if(callback){
-            this._getJSON(`/ticker/?convert=${this.convert}&limit=0`, callback);
+    getAllSymbols(callback) {
+        if (callback) {
+            this._getJSON(`/ticker/?convert=${this.currency}&limit=0`, callback);
             return this;
         } else {
             return false;
         }
     }
 
-    getTop(top, callback){
-        if(callback){
-            this._getJSON(`/ticker/?convert=${this.convert}&limit=${top}`, callback);
+    getTopSymbols(limit, callback) {
+        if (callback) {
+            this._getJSON(`/ticker/?convert=${this.currency}&limit=${limit}`, callback);
             return this;
         } else {
             return false;
         }
     }
 
-    getPage(page, callback){
-        if(callback){
+    getSymbolsPage(page, callback) {
+        if (callback) {
             let start = (page - 1) * 100;
-            this._getJSON(`/ticker/?convert=${this.convert}&start=${start}&limit=100`, callback);
+            this._getJSON(`/ticker/?convert=${this.currency}&start=${start}&limit=100`, callback);
             return this;
         } else {
             return false;
         }
     }
 
-    onMulti(callback){
-        if(this.events){
-            this.events.push({callback, type: "multi"});
+    onUpdate(callback) {
+        if (this.events) {
+            this.events.push( { callback, type: 'update' } ) ;
         } else {
             return false;
         }
     }
 
-    on(coin, callback){
-        if(this.events){
-            this.events.push({coin, callback, type: "update"});
+    onTickerUpdate(symbol, callback) {
+        if (this.events) {
+            this.events.push( { symbol, callback, type: 'tickerUpdate' } ) ;
         } else {
             return false;
         }
     }
 
-    onGreater(coin, price, callback){
-        if(this.events){
-            this.events.push({coin, price, callback, type: "greater"});
+    onPriceAbove(symbol, price, callback) {
+        if (this.events) {
+            this.events.push( { symbol, price, callback, type: 'priceAbove' } ) ;
         } else {
             return false;
         }
     }
 
-    onLesser(coin, price, callback){
-        if(this.events){
-            this.events.push({coin, price, callback, type: "lesser"});
+    onPriceBelow(symbol, price, callback) {
+        if (this.events) {
+            this.events.push( { symbol, price, callback, type: 'priceBelow' } ) ;
         } else {
             return false;
         }
     }
 
-    onPercentChange1h(coin, percent, callback){
-        if(this.events){
-            this.events.push({coin, percent, callback, type: "percent1h"});
+    onPricePercentChange1h(symbol, percent, callback) {
+        if (this.events) {
+            this.events.push( { symbol, percent, callback, type: 'pricePercentChange1h' } ) ;
         } else {
             return false;
         }
     }
 
-    onPercentChange24h(coin, percent, callback){
-        if(this.events){
-            this.events.push({coin, percent, callback, type: "percent24h"});
+    onPricePercentChange24h(symbol, percent, callback) {
+        if (this.events) {
+            this.events.push( { symbol, percent, callback, type: 'pricePercentChange24h' } ) ;
         } else {
             return false;
         }
     }
 
-    onPercentChange7d(coin, percent, callback){
-        if(this.events){
-            this.events.push({coin, percent, callback, type: "percent7d"});
+    onPricePercentChange7d(symbol, percent, callback) {
+        if (this.events) {
+            this.events.push( { symbol, percent, callback, type: 'pricePercentChange7d' } ) ;
         } else {
             return false;
         }
     }
 
-    deleteEvent(event){
+    deleteEvent(event) {
         this.events.splice(this.events.indexOf(event), 1);
         return this;
     }
 }
 
 module.exports = CoinMarketCap;
+

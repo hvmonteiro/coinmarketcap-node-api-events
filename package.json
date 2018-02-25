@@ -1,6 +1,6 @@
 {
   "name": "node-coinmarketcap-rest-api",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A NodeJS module to request data from CoinMarketCap REST API.",
   "main": "index.js",
   "scripts": {
@@ -26,9 +26,12 @@
   },
   "homepage": "https://github.com/hvmonteiro/node-coinmarketcap-rest-api#readme",
   "dependencies": {
-    "request": "^2.81.0"
+    "request": "^2.83.0"
   },
   "contributors": [
-    {"name":"Alex Caston","url":"hhttps://github.com/Aex12"}
+    {
+      "name": "Alex Caston",
+      "url": "hhttps://github.com/Aex12"
+    }
   ]
 }
