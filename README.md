@@ -84,5 +84,6 @@ coinmarketcap.onMulti((coins, event) => {
 });
 
 ```
-For a full list of examples with simple requests, check: https://github.com/hvmonteiro/node-coinmarketcap-rest-api/blob/master/example1.js
-For a full list of examples with events, check: https://github.com/hvmonteiro/node-coinmarketcap-rest-api/blob/master/example2.js
+For a full list of examples with simple requests, check: https://github.com/hvmonteiro/node-coinmarketcap-rest-api/blob/master/example1.js 
+  
+For a full list of examples with events, check: https://github.com/hvmonteiro/node-coinmarketcap-rest-api/blob/master/example2.js  
